@@ -1,40 +1,25 @@
 import React from 'react'
 
 export default class Form extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      task: '',
-    }
+
+  updateText = (event) => {
+    this.props.handleChange(event);
   }
 
-  submitForm = (e) => {
-    e.preventDefault;
-    this.props.addTask(e, this.state.task);
-    this.setState({
-      ...this.state,
-      task: ""
-    })
+  submitForm = (event) => {
+    this.props.addTask(event);
   }
-
-  handleChange = (e) => {
-    this.setState({
-      ...this.state,
-      task: e.target.value,
-    })
-  }
-
 
   render() {
     return (
-      <form onSubmit={this.submitForm} >
+      <form onSubmit={this.submitForm}>
         <input 
-          type="text"
-          placeholder="Enter task here"
-          onChange={this.handleChange}
-          value={this.state.task}
+          type="text" 
+          placeholder="Enter new task" 
+          onChange={this.updateText} 
+          value={this.props.textInput}
         />
-        <button id="add-task-button">Add Task</button>
+        <button type="submit">Add Task</button>
       </form>
     )
   }

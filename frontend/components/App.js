@@ -1,110 +1,89 @@
 import React from 'react'
 import axios from 'axios'
-import Form from './Form.js'
-import TodoList from './TodoList.js'
+
+import TodoList from './TodoList'
+import Form from './Form'
 
 const URL = 'http://localhost:9000/api/todos'
 
-const getTasks = () => {
-  return axios.get(URL)
-    .then(res => res)
-    .catch(err => console.error(err))
-}
+  // eventually - make it so that it doesn't fetch the ENTIRE API again. For now just GET the entire API
+// Step 4: Hide/show complete
 
 export default class App extends React.Component {
-
-  /////// CONSTRUCTOR /////////
   constructor() {
-    // console.log("constructor")
     super();
     this.state = {
       tasks: [],
+      textInput: "",
+      displayCompleted: true,
     }
   }
 
-  /////// TOGGLE COMPLETE /////////
-  toggleComplete = (taskId) => {
-    // console.log("toggleComplete called")
-    // change "completed" in state (user-side)
-    this.setState({
-      ...this.state,
-      tasks: this.state.tasks.map((task) => {
-        if(taskId === task.id) {
-          return {...task, completed: !task.completed}
-        }
-        return task;
-      })
-    })
-    // patch "completed" in API (server-side)
-    axios.patch(`${URL}/${id}`)
-      .then({
-      })
-      .catch(err => console.log(err));
-  }
-
-  /////// ADD TASK /////////
-  // When a new task is typed in and then "Add Task" is clicked, the new task is first added to state (user side) and then it is posted to the api (server side)
-  addTask = (e, task) => {
-    // console.log("addTask called");
-    e.preventDefault();
-    const newTask = {
-      id: Date.now(),
-      name: task,
-      completed: false
-    }
-
-    // Adds task user-side.
-    this.setState({
-      ...this.state,
-      tasks: [...this.state.tasks, newTask]
-    })
-
-  // Adds task server-side.
-    axios.post(URL, newTask)
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(err => console.error(err));
-  }
-
-
-  /////// CLEAR COMPLETED /////////
-  // When the "Clear" button is clicked, the tasks that are completed (completed === true) are toggled off so they are no longer shown.
-  clearCompleted = () => {
-    // console.log("clearCompleted called");
-    this.setState({
-      ...this.state,
-      tasks: this.state.tasks.filter((task) => {
-        return task.completed === false;
-      })
-    })
-  }
-
-/////// COMPONENT DID MOUNT /////////
-  // Runs once after the initial mounting of the todo list; reads tasks from the task list API and puts those tasks in the state.
-  componentDidMount() {
-    // console.log("componentDidMount");
-    getTasks()
+  // fetches all tasks from an API and then sets the state.tasks as the data
+  fetchAllTasks = () => {
+    axios.get(URL)
       .then(res => {
-        this.setState({...this.state, tasks: res.data.data})
+        this.setState({
+          ...this.state,
+          tasks: res.data.data
+        })
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error(err))
   }
 
-  /////// RENDER /////////
-  // renders the grocery list, an input to enter a new task, and a button to clear completed tasks.
+  // Toggles a single task's "completed" attribute as true or false
+  toggleComplete = (e, taskId) => {
+    axios.patch(`${URL}/${taskId}`)
+      .then()
+      .catch(err => console.error(err));
+    this.fetchAllTasks();
+  }
+
+  // handles the changes of the input box
+  handleChange = (e) => {
+    const { value } = e.target;
+    this.setState({
+      ...this.state,
+      textInput: value
+    })
+  }
+
+  // adds a task from the input box to the API and the page
+  addTask = (event) => {
+    event.preventDefault();
+    axios.post(URL, {name: this.state.textInput})
+      .then(res => console.log(res))
+      .catch(err => console.error(err));
+    this.fetchAllTasks();
+    this.setState({textInput: ""})
+  }
+
+  // hides or shows the completed tasks on the list
+  toggleCompletedTasks = () => {
+    this.setState({displayCompleted: !this.state.displayCompleted})
+  }
+
+
+  componentDidMount() {
+    this.fetchAllTasks();
+  }
+
+
   render() {
-    // console.log("render");
-    return (
+    return(
       <div>
-        <TodoList 
-          tasks={this.state.tasks} 
-          toggleComplete={this.toggleComplete}
+        {this.state.tasks.map((task) => {
+          return <p key={task.id} onClick={(e) => this.toggleComplete(e, task.id)}>{task.name}{task.completed === true ? " ✔" : ""}</p>
+        })}
+
+        <Form 
+          addTask={this.addTask}
+          handleChange={this.handleChange}
+          textInput={this.state.textInput}
         />
 
-        <Form addTask={this.addTask}/>
-
-        <button id="clear-button" onClick={this.clearCompleted}>Clear Completed</button>
+        <button onClick={this.toggleCompletedTasks}>{this.state.displayCompleted ? "Hide" : "Show" } Completed</button>
+        
       </div>
     )
   }

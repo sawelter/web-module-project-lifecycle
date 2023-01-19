@@ -61,6 +61,20 @@ export default class App extends React.Component {
   // hides or shows the completed tasks on the list
   toggleCompletedTasks = () => {
     this.setState({displayCompleted: !this.state.displayCompleted})
+    if(this.state.displayCompleted) {
+      this.setState(
+        {
+          ...this.state,
+          displayCompleted: !this.state.displayCompleted,
+          tasks: this.state.tasks.filter(task => {
+            return !task.completed;
+          })
+        }
+      )
+    }
+    else {
+      this.fetchAllTasks();
+    }
   }
 
 
@@ -74,7 +88,7 @@ export default class App extends React.Component {
       <div>
         <TodoList 
           tasks={this.state.tasks}
-          toggleComplete={this.toggleComplete}
+          displayCompleted={this.state.displayCompleted}
         />
 
         <Form 
@@ -83,7 +97,9 @@ export default class App extends React.Component {
           textInput={this.state.textInput}
         />
 
-        <button onClick={this.toggleCompletedTasks}>{this.state.displayCompleted ? "Hide" : "Show" } Completed</button>
+        <button onClick={this.toggleCompletedTasks}>
+          {this.state.displayCompleted ? "Hide" : "Show" } Completed
+        </button>
         
       </div>
     )

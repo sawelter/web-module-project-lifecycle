@@ -19,6 +19,7 @@ export default class TodoList extends React.Component {
             key={task.id}
             handleClick={this.handleClick}
             task={task}
+            toggleComplete={this.handleClick}
           />
         })}
       </div>

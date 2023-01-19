@@ -89,6 +89,7 @@ export default class App extends React.Component {
         <TodoList 
           tasks={this.state.tasks}
           displayCompleted={this.state.displayCompleted}
+          toggleComplete={this.toggleComplete}
         />
 
         <Form 

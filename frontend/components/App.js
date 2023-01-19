@@ -72,9 +72,10 @@ export default class App extends React.Component {
   render() {
     return(
       <div>
-        {this.state.tasks.map((task) => {
-          return <p key={task.id} onClick={(e) => this.toggleComplete(e, task.id)}>{task.name}{task.completed === true ? " ✔" : ""}</p>
-        })}
+        <TodoList 
+          tasks={this.state.tasks}
+          toggleComplete={this.toggleComplete}
+        />
 
         <Form 
           addTask={this.addTask}

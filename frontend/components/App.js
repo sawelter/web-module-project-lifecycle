@@ -13,6 +13,7 @@ const getTasks = () => {
 
 export default class App extends React.Component {
 
+  /////// CONSTRUCTOR /////////
   constructor() {
     // console.log("constructor")
     super();
@@ -21,8 +22,10 @@ export default class App extends React.Component {
     }
   }
 
+  /////// TOGGLE COMPLETE /////////
   toggleComplete = (taskId) => {
     // console.log("toggleComplete called")
+    // change "completed" in state (user-side)
     this.setState({
       ...this.state,
       tasks: this.state.tasks.map((task) => {
@@ -32,19 +35,15 @@ export default class App extends React.Component {
         return task;
       })
     })
-  }
-
-  componentDidMount() {
-    // console.log("componentDidMount");
-    getTasks()
-      .then(res => {
-        this.setState({...this.state, tasks: res.data.data})
+    // patch "completed" in API (server-side)
+    axios.patch(`${URL}/${id}`)
+      .then({
       })
-      .catch(err => console.error(err));
-    
-    console.log(this.state.tasks);
+      .catch(err => console.log(err));
   }
 
+  /////// ADD TASK /////////
+  // When a new task is typed in and then "Add Task" is clicked, the new task is first added to state (user side) and then it is posted to the api (server side)
   addTask = (e, task) => {
     // console.log("addTask called");
     e.preventDefault();
@@ -53,12 +52,14 @@ export default class App extends React.Component {
       name: task,
       completed: false
     }
+
+    // Adds task user-side.
     this.setState({
       ...this.state,
       tasks: [...this.state.tasks, newTask]
     })
-    
-  // adds task to the server API as well.
+
+  // Adds task server-side.
     axios.post(URL, newTask)
     .then(function (response) {
       console.log(response);
@@ -66,6 +67,9 @@ export default class App extends React.Component {
     .catch(err => console.error(err));
   }
 
+
+  /////// CLEAR COMPLETED /////////
+  // When the "Clear" button is clicked, the tasks that are completed (completed === true) are toggled off so they are no longer shown.
   clearCompleted = () => {
     // console.log("clearCompleted called");
     this.setState({
@@ -76,7 +80,19 @@ export default class App extends React.Component {
     })
   }
 
+/////// COMPONENT DID MOUNT /////////
+  // Runs once after the initial mounting of the todo list; reads tasks from the task list API and puts those tasks in the state.
+  componentDidMount() {
+    // console.log("componentDidMount");
+    getTasks()
+      .then(res => {
+        this.setState({...this.state, tasks: res.data.data})
+      })
+      .catch(err => console.error(err));
+  }
 
+  /////// RENDER /////////
+  // renders the grocery list, an input to enter a new task, and a button to clear completed tasks.
   render() {
     // console.log("render");
     return (
